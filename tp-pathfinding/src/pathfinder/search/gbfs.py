@@ -22,8 +22,49 @@ class GreedyBestFirstSearch:
         reached = {}
         reached[root.state] = root.cost
 
-        # Initialize frontier with the root node
-        # TODO Complete the rest!!
-        # ...
+        def heuristic(state, goal):
+            row, col = state
+            end_row, end_col = goal
+            return abs(row - end_row) + abs(col - end_col)
+
+       # Frontera como cola de prioridad 
+        frontier = PriorityQueueFrontier()
+        frontier.add(root, heuristic(root.state, grid.end))
+
+         # Alcanzados guarda el costo (aunque GBFS no lo usa mucho)
+        reached = {}
+        reached[root.state] = root.cost
+
+        # ¿El inicial ya es objetivo?
+        if grid.objective_test(root.state):
+            return Solution(root, reached)
+
+        # Bucle principal
+        while True:
+
+            if frontier.is_empty():
+                return NoSolution(reached)
+
+            node = frontier.pop()
+
+            # Expandimos
+            for action in grid.actions(node.state):
+
+                result = grid.result(node.state, action)
+                new_cost = node.cost + 1  # como en BFS
+
+                # Condición del pseudocódigo
+                if result not in reached or new_cost < reached[result]:
+
+                    new_node = Node("", result, new_cost, node, action)
+                    reached[result] = new_cost
+
+                    # ¿Llegamos?
+                    if grid.objective_test(new_node.state):
+                        return Solution(new_node, reached)
+
+                    # PRIORIDAD = heurística
+                    priority = heuristic(new_node.state, grid.end)
+                    frontier.add(new_node, priority)
 
         return NoSolution(reached)
