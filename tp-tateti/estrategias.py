@@ -45,23 +45,91 @@ def estrategia_minimax(tateti: Tateti, estado: List[List[str]]) -> Tuple[int, in
     Raises:
         NotImplementedError: Hasta que el alumno implemente el algoritmo
     """
-    # TODO: Implementar algoritmo minimax
 
-    # INSTRUCCIONES:
-    # 1. Eliminar la línea 'raise NotImplementedError...' de abajo
-    # 2. Implementar el algoritmo minimax aquí
-    # 3. La función debe retornar una tupla (fila, columna) con la mejor jugada
+    # ---------------------------------------------------------------------
 
-    raise NotImplementedError(
-        "\n" + "="*60 +
-        "\n🚫 ALGORITMO MINIMAX NO IMPLEMENTADO" +
-        "\n" + "="*60 +
-        "\n\nPara usar la estrategia Minimax debe implementarla primero." +
-        "\n\nInstrucciones:" +
-        "\n1. Abra el archivo 'estrategias.py'" +
-        "\n2. Busque la función 'estrategia_minimax()'" +
-        "\n3. Elimine la línea 'raise NotImplementedError(...)'" +
-        "\n4. Implemente el algoritmo minimax" +
-        "\n\nMientras tanto, use la 'Estrategia Aleatoria'." +
-        "\n" + "="*60
-    )
+    def MINIMAX_MAX(tateti: Tateti, estado: List[List[str]]) -> Tuple[int, int]:
+       # Calcula recursivamente el valor minimax en un nodo MAX  
+
+       # Caso base: si el estado es terminal, devuelve la utilidad
+       if tateti.test_terminal(estado):
+           return tateti.utilidad(estado, JUGADOR_MAX)
+       
+       # Como MAX busca el mayor valor posible, empezamos desde el peor caso.
+       valor = 0 
+
+       # Probamos todas las jugadas posibles:
+       for accion in tateti.acciones(estado):
+           sucesor = tateti.resultado(estado, accion)
+           # Comparamos con el mejor resultado que ya obtuvimos:
+           valor = max(valor, MINIMAX_MIN(tateti, sucesor))  
+           # se llama a minimax_min porque es el jugador que sigue
+
+       # Retornamos el mejor resulatdo para el jugador MAX:
+       return valor
+
+
+
+    def MINIMAX_MIN(tateti: Tateti, estado: List[List[str]]) -> Tuple[int, int]:
+        # Calcula recursivamente el valor minimax en un nodo MIN
+
+        # Caso base: si el estado es terminal, devuelve la utilidad
+        if tateti.test_terminal(estado):
+            return tateti.utilidad(estado, JUGADOR_MAX)
+        
+        # Como MIN busca el menor valor posible, empezamos desde el peor caso.
+        valor = 1 
+
+        # Probamos todas las jugadas posibles:
+        for accion in tateti.acciones(estado):
+            sucesor = tateti.resultado(estado, accion)
+            # Comparamos con el mejor resultado que ya obtuvimos:
+            valor = min(valor, MINIMAX_MAX(tateti, sucesor))  
+            # se llama a minimax_max porque es el jugador que sigue
+
+        # Retornamos el mejor resultado para el jugador MIN:
+        return valor
+
+
+
+    def MINIMAX(tateti: Tateti, estado: List[List[str]]) -> Tuple[int, int]:
+        # Toma un estado y devuelve la mejor acción a aplicar segun la estrategia minimax.
+
+        # Caso base: se alcanzó el estado objetivo:
+        if tateti.test_terminal(estado):
+            return tateti.utilidad(estado, JUGADOR_MAX)
+
+        ### Si juega MAX:
+        if tateti.jugador(estado) == JUGADOR_MAX:
+
+            # Creamos un diccionario donde guardaremos cada acción posible y su valor minimax
+            sucesor = {}
+
+            # Evaluamos cada acción posible:
+            for accion in tateti.acciones(estado):
+                nuevo_estado = tateti.resultado(estado, accion)
+                # Guardamos ese resultado en el diccionario:
+                sucesor[accion] = MINIMAX_MIN(tateti, nuevo_estado)
+
+            # Busco el máximo valor del diccionario: la acción con el mayor valor minimax:
+            max = max(sucesor, key=sucesor.get)
+
+            return tateti.resultado(estado, max)
+        
+
+        ### Si juega MIN:
+        else:
+
+            # Creamos un diccionario donde guardaremos cada acción posible y su valor minimax
+            sucesor = {}
+
+            # Evaluamos cada acción posible:
+            for accion in tateti.acciones(estado):
+                nuevo_estado = tateti.resultado(estado, accion)
+                # Guardamos ese resultado en el diccionario:
+                sucesor[accion] = MINIMAX_MAX(tateti, nuevo_estado)
+
+            # Busco el mínimo valor del diccionario: la acción con el menor valor minimax:
+            min = min(sucesor, key=sucesor.get)
+
+            return tateti.resultado(estado, min)
