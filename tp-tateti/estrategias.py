@@ -56,7 +56,7 @@ def estrategia_minimax(tateti: Tateti, estado: List[List[str]]) -> Tuple[int, in
            return tateti.utilidad(estado, JUGADOR_MAX)
        
        # Como MAX busca el mayor valor posible, empezamos desde el peor caso.
-       valor = 0 
+       valor = float("-inf")
 
        # Probamos todas las jugadas posibles:
        for accion in tateti.acciones(estado):
@@ -78,7 +78,7 @@ def estrategia_minimax(tateti: Tateti, estado: List[List[str]]) -> Tuple[int, in
             return tateti.utilidad(estado, JUGADOR_MAX)
         
         # Como MIN busca el menor valor posible, empezamos desde el peor caso.
-        valor = 1 
+        valor = float("inf")
 
         # Probamos todas las jugadas posibles:
         for accion in tateti.acciones(estado):
@@ -97,7 +97,7 @@ def estrategia_minimax(tateti: Tateti, estado: List[List[str]]) -> Tuple[int, in
 
         # Caso base: se alcanzó el estado objetivo:
         if tateti.test_terminal(estado):
-            return tateti.utilidad(estado, JUGADOR_MAX)
+            return None
 
         ### Si juega MAX:
         if tateti.jugador(estado) == JUGADOR_MAX:
@@ -112,9 +112,9 @@ def estrategia_minimax(tateti: Tateti, estado: List[List[str]]) -> Tuple[int, in
                 sucesor[accion] = MINIMAX_MIN(tateti, nuevo_estado)
 
             # Busco el máximo valor del diccionario: la acción con el mayor valor minimax:
-            max = max(sucesor, key=sucesor.get)
+            accion_mejor = max(sucesor, key=sucesor.get)
 
-            return tateti.resultado(estado, max)
+            return accion_mejor
         
 
         ### Si juega MIN:
@@ -130,6 +130,12 @@ def estrategia_minimax(tateti: Tateti, estado: List[List[str]]) -> Tuple[int, in
                 sucesor[accion] = MINIMAX_MAX(tateti, nuevo_estado)
 
             # Busco el mínimo valor del diccionario: la acción con el menor valor minimax:
-            min = min(sucesor, key=sucesor.get)
+            accion_mejor = min(sucesor, key=sucesor.get)
 
-            return tateti.resultado(estado, min)
+            return accion_mejor
+    accion = MINIMAX(tateti, estado)
+
+    if accion is None:
+        raise ValueError("No hay acciones disponibles")
+
+    return accion
