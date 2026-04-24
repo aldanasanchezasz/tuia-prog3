@@ -18,24 +18,22 @@ class AStarSearch:
         # Initialize root node
         root = Node("", state=grid.initial, cost=0, parent=None, action=None)
 
+        # La cola de prioridad a la frontera
+        frontier = PriorityQueueFrontier()
+        # Encolar en la frontera
+        frontier.add(root, root.cost + heuristic(root.state, grid.end))
+
         # Initialize reached with the initial state
         reached = {}
         reached[root.state] = root.cost
 
         # Heurística
         def heuristic(state, goal):
-            row, col = state
-            end_row, end_col = goal
-            return abs(row - end_row) + abs(col - end_col)
-        
-        # La cola de prioridad a la frontera
-        frontier = PriorityQueueFrontier()
-
-        # Encolar en la frontera
-        frontier.add(root, root.cost + heuristic(root.state, grid.end))
+            x, y = state
+            x_objetivo, y_objetivo = goal
+            return abs(x - x_objetivo) + abs(y - y_objetivo)
 
         # Bucle principal
-
         while True:
             if frontier.is_empty():
                 return NoSolution(reached)
@@ -53,7 +51,7 @@ class AStarSearch:
                 result = grid.result(node.state, action)
                 
                 # Costo acumulado
-                new_cost = node.cost + 1
+                new_cost = node.cost + grid.individual_cost(node.state, action)
                 
                 # Condicional
                 if result not in reached or new_cost < reached[result]:
@@ -64,4 +62,3 @@ class AStarSearch:
                     frontier.add(new_node, priority)
 
         return NoSolution(reached)
-

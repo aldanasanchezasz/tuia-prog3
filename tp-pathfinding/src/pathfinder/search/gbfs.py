@@ -23,21 +23,13 @@ class GreedyBestFirstSearch:
         reached[root.state] = root.cost
 
         def heuristic(state, goal):
-            row, col = state
-            end_row, end_col = goal
-            return abs(row - end_row) + abs(col - end_col)
+            x, y = state
+            x_objetivo, y_objetivo = goal
+            return abs(x - x_objetivo) + abs(y - y_objetivo)
 
-       # Frontera como cola de prioridad 
+        # Frontera como cola de prioridad 
         frontier = PriorityQueueFrontier()
         frontier.add(root, heuristic(root.state, grid.end))
-
-         # Alcanzados guarda el costo 
-        reached = {}
-        reached[root.state] = True #root.cost #CAMBIOOOOOOOOOOOOOOOOOOOOOOOO
-
-        # Ver si el inicial es el objetivo
-        if grid.objective_test(root.state):
-            return Solution(root, reached)
 
         # Bucle principal
         while True:
@@ -47,23 +39,26 @@ class GreedyBestFirstSearch:
 
             node = frontier.pop()
 
+            # Ver si es el objetivo
+            if grid.objective_test(node.state):
+                return Solution(node, reached)
+
             # Expandimos
             for action in grid.actions(node.state):
 
                 result = grid.result(node.state, action)
 
+                costo = node.cost + grid.cost(node.state, action)
+
                 # Condicional
-                if result not in reached:
+                if result not in reached or costo < reached[result]:
 
-                    new_node = Node("", result, 0, node, action)
-                    reached[result] = True
+                    new_node = Node("", result, costo, node, action)
+                    reached[result] = costo
 
-                    # Test objetivo
-                    if grid.objective_test(new_node.state):
-                        return Solution(new_node, reached)
-
-                    # Prioridad = heurística
+                    # Prioridad = heurística (seleccionamos el nodo con menor heurística)
                     priority = heuristic(new_node.state, grid.end)
+                    # Lo agregamos a la cola de prioridad 
                     frontier.add(new_node, priority)
 
         return NoSolution(reached)
